@@ -1,0 +1,38 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Person Details</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Person Details</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div *ngIf="person">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ person.name.first }} {{ person.name.last }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p><strong>Gender:</strong> {{ person.gender }}</p>
+        <p><strong>Age:</strong> {{ person.dob.age }}</p>
+        <p><strong>Birthday:</strong> {{ person.dob.date.substring(0, 10) }}</p>
+
+        <p><strong>Nationality:</strong> {{ person.nat }}</p>
+        <p><strong>Location:</strong> {{ person.location.city }}, {{ person.location.state }}, {{ person.location.country }}</p>
+
+        <p><strong>Email:</strong> {{ person.email }}</p>
+        <p><strong>Phone:</strong> {{ person.phone }}</p>
+
+        <img [src]="person.picture?.large" alt="Photo of {{ person.name.first }}">
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div *ngIf="!person">
+    <p>No data was uploaded for any person.</p>
+  </div>
+</ion-content>
