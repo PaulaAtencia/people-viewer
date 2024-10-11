@@ -1,9 +1,11 @@
 import { Observable } from 'rxjs';
+import { Model } from '../../models/base.model';
+import { Paginated } from '../../models/paginated.model';
 
-export interface IBaseRepository<T> {
-  getAll(): Observable<T[]>;
+export interface IBaseRepository<T extends Model> {
+  getAll(page:number, pageSize:number): Observable<Paginated<T>>;
   getById(id: string): Observable<T | null>;
-  add(entity: T): Observable<string>; // Retorna el ID generado
-  update(id: string, entity: T): Observable<void>;
-  delete(id: string): Observable<void>;
+  add(entity: T): Observable<T>; // Retorna el ID generado
+  update(id: string, entity: T): Observable<T>;
+  delete(id: string): Observable<T>;
 }
