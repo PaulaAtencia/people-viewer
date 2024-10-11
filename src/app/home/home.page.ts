@@ -5,6 +5,7 @@ import { AnimationController, InfiniteScrollCustomEvent } from '@ionic/angular';
 import { Paginated } from '../core/models/paginated.model';
 import { Person } from '../core/models/person.model';
 import { Router } from '@angular/router';
+import { PersonStorageService } from '../core/services/impl/person-storage.service';
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -18,7 +19,8 @@ export class HomePage implements OnInit{
   constructor(
     private animationCtrl: AnimationController,
     private peopleSv:PeopleService,
-    private router: Router
+    private router: Router,
+    private personStorage: PersonStorageService
   ) {}
 
   ngOnInit(): void {
@@ -48,6 +50,7 @@ export class HomePage implements OnInit{
 
   async openPersonDetail(person: any, index: number) {
     this.selectedPerson = person;
+    this.personStorage.selectPerson(person);
     const avatarElements = this.avatars.toArray();
     const clickedAvatar = avatarElements[index].nativeElement;
 
