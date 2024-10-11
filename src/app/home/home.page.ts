@@ -1,37 +1,28 @@
 import { Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { PeopleService } from '../core/services/impl/people.service';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { AnimationController } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { AnimationController, InfiniteScrollCustomEvent } from '@ionic/angular';
+import { Paginated } from '../core/models/paginated.model';
 import { Person } from '../core/models/person.model';
-import { PersonStorageService } from '../core/services/impl/person-storage.service';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
+export class HomePage implements OnInit{
 
-export class HomePage implements OnInit
-{
-  // Cambiado los Any por Person
   _people:BehaviorSubject<Person[]> = new BehaviorSubject<Person[]>([]);
   people$:Observable<Person[]> = this._people.asObservable();
 
   constructor(
     private animationCtrl: AnimationController,
     private peopleSv:PeopleService,
-    private router: Router,
-    public personStorage: PersonStorageService // Servicio que guarda la persona seleccionada
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.peopleSv.getAll().subscribe({
-      next:(response:any)=>{
-        this._people.next(response['results'])
-        console.log(response.results);
-      }
-    });
+    this.getMorePeople();
   }
 
 
@@ -39,28 +30,24 @@ export class HomePage implements OnInit
   @ViewChild('animatedAvatar') animatedAvatar!: ElementRef;
   @ViewChild('animatedAvatarContainer') animatedAvatarContainer!: ElementRef;
 
-  // Cambiado Any por Person
-  selectedPerson?: Person = undefined;
+  selectedPerson: any = null;
   isAnimating = false;
+  page:number = 0;
+  pageSize:number = 25;
 
-  getPeople() {
-    // Suscribimos al Observable people$ y asignamos los datos
-    this.peopleSv.getAll().subscribe({
-      next: (people) => {
-        this._people.next(people);
-      },
-      error: (err) => {
-        console.error('Error al obtener las personas', err);
+
+  getMorePeople(notify:HTMLIonInfiniteScrollElement | null = null) {
+    this.peopleSv.getAll(this.page, this.pageSize).subscribe({
+      next:(response:Paginated<Person>)=>{
+        this._people.next([...this._people.value, ...response.data]);
+        this.page++;
+        notify?.complete();
       }
     });
   }
-  
 
-  async openPersonDetail(person: Person, index: number) 
-  {
-    this.personStorage.selectPerson(person); // Almacenar la persona seleccionada
+  async openPersonDetail(person: any, index: number) {
     this.selectedPerson = person;
-
     const avatarElements = this.avatars.toArray();
     const clickedAvatar = avatarElements[index].nativeElement;
 
@@ -86,7 +73,7 @@ export class HomePage implements OnInit
       .fromTo('transform', 'translate(0, 0) scale(1)', `translate(${window.innerWidth / 2 - avatarRect.left - avatarRect.width / 2}px, ${window.innerHeight / 2 - avatarRect.top - avatarRect.height / 2}px) scale(5)`);
 
     // Iniciar la animación
-    await animation.play()
+    await animation.play();
 
     // Al finalizar la animación, navega a otra vista para más detalles
     this.router.navigate(['/person-details']);
