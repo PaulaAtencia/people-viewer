@@ -1,4 +1,3 @@
-// src/app/core/repositories/interfaces/base-repository.interface.ts
 import { Observable } from 'rxjs';
 
 export interface IBaseRepository<T> {
